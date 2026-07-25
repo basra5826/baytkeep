@@ -1,23 +1,29 @@
 {
   "expo": {
-    "name": "home-inventory",
+    "name": "Baytkeep",
     "slug": "home-inventory",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "homeinventory",
+    "scheme": "baytkeep",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/images/icon.png",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Baytkeep uses the camera so you can photograph your belongings and warranty papers.",
+        "NSPhotoLibraryUsageDescription": "Baytkeep accesses your photo library so you can attach photos of your belongings and warranty papers.",
+        "ITSAppUsesNonExemptEncryption": false
+      },
+      "bundleIdentifier": "com.edbasra.homeinventory"
     },
     "android": {
+      "package": "com.edbasra.homeinventory",
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#F5EFE7"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": []
     },
     "web": {
       "output": "static",
@@ -28,15 +34,36 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 76
+          "backgroundColor": "#F5EFE7",
+          "image": "./assets/images/icon.png",
+          "imageWidth": 220
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Baytkeep accesses your photo library so you can attach photos of your belongings and warranty papers.",
+          "cameraPermission": "Baytkeep uses the camera so you can photograph your belongings and warranty papers."
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#C4694A",
+          "sounds": []
         }
       ]
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "97b705ab-5d5d-441d-9c97-5c25683194fd"
+      }
     }
   }
 }
