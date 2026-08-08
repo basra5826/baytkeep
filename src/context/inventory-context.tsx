@@ -19,7 +19,7 @@ import {
   resyncAllFoodNotifications,
   syncFoodNotificationsForItem,
 } from '@/lib/food-notifications';
-import { loadInventory, saveInventory } from '@/lib/inventory-storage';
+import { isFirstLocationsLaunch, loadInventory, saveInventory } from '@/lib/inventory-storage';
 import { createId, hasLocationName, hasRoomName } from '@/lib/inventory-utils';
 import type { InventoryData, Item, ItemDetailsInput, Location, Room } from '@/types/inventory';
 
@@ -65,6 +65,16 @@ function mergeItemUpdates(item: Item, updates: Partial<Item>): Item {
   return merged;
 }
 
+function createDefaultLocations(): Location[] {
+  return [
+    { id: createId(), name: 'Fridge', hasRooms: false, isFood: true },
+    { id: createId(), name: 'Pantry', hasRooms: false, isFood: true },
+    { id: createId(), name: 'House', hasRooms: false },
+    { id: createId(), name: 'Shed', hasRooms: false },
+    { id: createId(), name: 'Storage', hasRooms: false },
+  ];
+}
+
 export function InventoryProvider({ children }: { children: ReactNode }) {
   const [locations, setLocations] = useState<Location[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -89,14 +99,24 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 
     loadInventory().then(async (data) => {
       if (cancelled) return;
-      inventoryRef.current = data;
-      setLocations(data.locations);
-      setRooms(data.rooms);
-      setItems(data.items);
+
+      const isFirstLaunch = await isFirstLocationsLaunch();
+      if (isFirstLaunch && data.locations.length === 0) {
+        await applyInventory({ ...data, locations: createDefaultLocations() });
+      } else {
+        inventoryRef.current = data;
+        setLocations(data.locations);
+        setRooms(data.rooms);
+        setItems(data.items);
+      }
+
       setIsLoaded(true);
 
       await initializeNotifications();
-      await resyncAllFoodNotifications(data.items, data.locations);
+      await resyncAllFoodNotifications(
+        inventoryRef.current.items,
+        inventoryRef.current.locations,
+      );
     });
 
     return () => {

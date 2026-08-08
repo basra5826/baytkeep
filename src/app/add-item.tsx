@@ -19,6 +19,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { LocationDropdown } from '@/components/ui/location-dropdown';
 import { OptionButton } from '@/components/ui/option-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { FoodDateFields, type FoodDateValues } from '@/components/food-date-fields';
@@ -150,20 +151,17 @@ export default function AddItemScreen() {
               to create one first.
             </Text>
           ) : (
-            <View style={styles.optionList}>
-              {sortedLocations.map((location) => (
-                <OptionButton
-                  key={location.id}
-                  label={location.isFood ? `${location.name} · Food` : location.name}
-                  selected={selectedLocationId === location.id}
-                  onPress={() => {
-                    setSelectedLocationId(location.id);
-                    setSelectedRoomId(null);
-                    if (!location.isFood) setFoodDates({});
-                  }}
-                />
-              ))}
-            </View>
+            <LocationDropdown
+              locations={sortedLocations}
+              selectedLocationId={selectedLocationId}
+              onSelectLocation={(id) => {
+                const location = locations.find((entry) => entry.id === id);
+                setSelectedLocationId(id);
+                setSelectedRoomId(null);
+                if (location && !location.isFood) setFoodDates({});
+              }}
+              placeholder="Select location"
+            />
           )}
 
           {selectedLocation?.hasRooms ? (

@@ -1,9 +1,9 @@
 /**
- * Tab bar — Inventory (owned items) and Lists (things to buy).
+ * Tab bar — Inventory, Extra Lists, and quick actions for add place/item.
  */
 
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
 import { StyleSheet } from 'react-native';
 
 import { AppStyles } from '@/constants/app-styles';
@@ -24,6 +24,7 @@ export default function TabsLayout() {
           backgroundColor: colors.background,
           borderTopColor: colors.border,
         },
+        tabBarItemStyle: styles.tabItem,
         tabBarLabelStyle: styles.tabLabel,
       }}>
       <Tabs.Screen
@@ -38,10 +39,40 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="lists"
         options={{
-          title: 'Lists',
+          title: 'Extra Lists',
           tabBarIcon: ({ color, size }) => (
             <MaterialCommunityIcons name="clipboard-list-outline" size={size} color={color} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="add-place"
+        options={{
+          title: 'Add place',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="home-plus-outline" size={size} color={color} />
+          ),
+        }}
+        listeners={{
+          tabPress: (event) => {
+            event.preventDefault();
+            router.push('/manage-locations');
+          },
+        }}
+      />
+      <Tabs.Screen
+        name="add-item-tab"
+        options={{
+          title: 'Add item',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="plus-box" size={size} color={color} />
+          ),
+        }}
+        listeners={{
+          tabPress: (event) => {
+            event.preventDefault();
+            router.push('/add-item');
+          },
         }}
       />
     </Tabs>
@@ -49,8 +80,12 @@ export default function TabsLayout() {
 }
 
 const styles = StyleSheet.create({
+  tabItem: {
+    flex: 1,
+    paddingVertical: 4,
+  },
   tabLabel: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
   },
 });

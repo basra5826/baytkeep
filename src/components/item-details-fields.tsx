@@ -8,6 +8,7 @@ import { useState } from 'react';
 import { Alert, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { OptionButton } from '@/components/ui/option-button';
+import { SegmentedControl } from '@/components/ui/segmented-control';
 import { AppStyles } from '@/constants/app-styles';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -78,38 +79,30 @@ export function ItemDetailsFields({ values, onChange, showStatus = true }: ItemD
   return (
     <View style={styles.container}>
       {showStatus ? (
-        <>
+        <View style={styles.fieldRow}>
           <Text style={[styles.label, { color: colors.textSecondary }]}>Status</Text>
-          <View style={styles.optionList}>
-            <OptionButton
-              label="Works"
-              selected={values.status === 'works'}
-              onPress={() => update({ status: 'works' })}
-            />
-            <OptionButton
-              label="Broken"
-              selected={values.status === 'broken'}
-              onPress={() => update({ status: 'broken' })}
-            />
-          </View>
-        </>
+          <SegmentedControl
+            options={['Works', 'Broken']}
+            selectedIndex={values.status === 'works' ? 0 : 1}
+            onSelectIndex={(index) => update({ status: index === 0 ? 'works' : 'broken' })}
+          />
+        </View>
       ) : null}
 
-      <Text style={[styles.label, { color: colors.textSecondary }]}>Condition</Text>
-      <View style={styles.optionList}>
-        <OptionButton
-          label="New"
-          selected={values.condition === 'new'}
-          onPress={() =>
-            update({ condition: values.condition === 'new' ? undefined : 'new' })
+      <View style={styles.fieldRow}>
+        <Text style={[styles.label, { color: colors.textSecondary }]}>Condition</Text>
+        <SegmentedControl
+          options={['New', 'Used']}
+          selectedIndex={
+            values.condition === 'new' ? 0 : values.condition === 'used' ? 1 : null
           }
-        />
-        <OptionButton
-          label="Used"
-          selected={values.condition === 'used'}
-          onPress={() =>
-            update({ condition: values.condition === 'used' ? undefined : 'used' })
-          }
+          onSelectIndex={(index) => {
+            if (index === 0) {
+              update({ condition: values.condition === 'new' ? undefined : 'new' });
+              return;
+            }
+            update({ condition: values.condition === 'used' ? undefined : 'used' });
+          }}
         />
       </View>
 
@@ -210,6 +203,13 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: '500',
+    flex: 1,
+  },
+  fieldRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
     marginTop: 4,
   },
   optionList: {

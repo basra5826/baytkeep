@@ -63,6 +63,12 @@ export async function loadInventory(): Promise<InventoryData> {
   };
 }
 
+/** True only before locations have ever been written to storage (first ever launch). */
+export async function isFirstLocationsLaunch(): Promise<boolean> {
+  const locationsJson = await AsyncStorage.getItem(LOCATIONS_KEY);
+  return locationsJson === null;
+}
+
 export async function saveInventory(data: InventoryData): Promise<void> {
   await Promise.all([
     AsyncStorage.setItem(LOCATIONS_KEY, JSON.stringify(data.locations)),

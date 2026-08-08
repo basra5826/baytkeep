@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { OptionButton } from '@/components/ui/option-button';
+import { SegmentedYesNo } from '@/components/ui/segmented-yes-no';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { AppStyles } from '@/constants/app-styles';
 import { Colors } from '@/constants/theme';
@@ -123,6 +123,22 @@ export default function ManageLocationsScreen() {
           <ScreenHeader title="Manage Locations" />
 
           <SectionHeading colors={colors} title="Add location" />
+
+          <TextInput
+            style={[
+              styles.input,
+              { color: colors.text, backgroundColor: colors.backgroundElement },
+            ]}
+            placeholder="Location name (e.g. Fridge, Office)"
+            placeholderTextColor={colors.textSecondary}
+            value={newLocationName}
+            onChangeText={(text) => {
+              setNewLocationName(text);
+              setLocationMessage(null);
+            }}
+            returnKeyType="done"
+          />
+
           <Text style={[styles.label, { color: colors.textSecondary }]}>Food quick picks</Text>
           <ChipRow>
             {FOOD_LOCATION_SUGGESTIONS.map((suggestion) => (
@@ -157,51 +173,20 @@ export default function ManageLocationsScreen() {
             ))}
           </ChipRow>
 
-          <TextInput
-            style={[
-              styles.input,
-              { color: colors.text, backgroundColor: colors.backgroundElement },
-            ]}
-            placeholder="Location name (e.g. Fridge, Office)"
-            placeholderTextColor={colors.textSecondary}
-            value={newLocationName}
-            onChangeText={(text) => {
-              setNewLocationName(text);
-              setLocationMessage(null);
-            }}
-            returnKeyType="done"
+          <YesNoField
+            label="Has rooms?"
+            value={newLocationHasRooms}
+            onValueChange={setNewLocationHasRooms}
+            colors={colors}
           />
 
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Has rooms?</Text>
-          <View style={styles.optionList}>
-            <OptionButton
-              label="Yes"
-              selected={newLocationHasRooms}
-              onPress={() => setNewLocationHasRooms(true)}
-            />
-            <OptionButton
-              label="No"
-              selected={!newLocationHasRooms}
-              onPress={() => setNewLocationHasRooms(false)}
-            />
-          </View>
-
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Food location?</Text>
-          <Text style={[styles.foodHint, { color: colors.textSecondary }]}>
-            Mark Fridge, Pantry, etc. to track expiry and finish dates.
-          </Text>
-          <View style={styles.optionList}>
-            <OptionButton
-              label="Yes"
-              selected={newLocationIsFood}
-              onPress={() => setNewLocationIsFood(true)}
-            />
-            <OptionButton
-              label="No"
-              selected={!newLocationIsFood}
-              onPress={() => setNewLocationIsFood(false)}
-            />
-          </View>
+          <YesNoField
+            label="Food location?"
+            hint="Mark Fridge, Pantry, etc. to track expiry and finish dates."
+            value={newLocationIsFood}
+            onValueChange={setNewLocationIsFood}
+            colors={colors}
+          />
 
           {locationMessage ? (
             <Text style={[styles.message, { color: colors.textSecondary }]}>{locationMessage}</Text>
@@ -259,19 +244,12 @@ export default function ManageLocationsScreen() {
                     </Pressable>
                   </View>
 
-                  <Text style={[styles.label, { color: colors.textSecondary }]}>Food location?</Text>
-                  <View style={styles.optionList}>
-                    <OptionButton
-                      label="Yes"
-                      selected={location.isFood === true}
-                      onPress={() => void updateLocation(location.id, { isFood: true })}
-                    />
-                    <OptionButton
-                      label="No"
-                      selected={location.isFood !== true}
-                      onPress={() => void updateLocation(location.id, { isFood: false })}
-                    />
-                  </View>
+                  <YesNoField
+                    label="Food location?"
+                    value={location.isFood === true}
+                    onValueChange={(isFood) => void updateLocation(location.id, { isFood })}
+                    colors={colors}
+                  />
 
                   {location.hasRooms ? (
                     <>
@@ -353,6 +331,39 @@ export default function ManageLocationsScreen() {
   );
 }
 
+function YesNoField({
+  label,
+  hint,
+  value,
+  onValueChange,
+  colors,
+}: {
+  label: string;
+  hint?: string;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  colors: (typeof Colors)['light'] | (typeof Colors)['dark'];
+}) {
+  if (hint) {
+    return (
+      <View style={styles.yesNoLabelRow}>
+        <View style={styles.yesNoLabelBlock}>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
+          <Text style={[styles.foodHint, { color: colors.textSecondary }]}>{hint}</Text>
+        </View>
+        <SegmentedYesNo value={value} onValueChange={onValueChange} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={styles.yesNoLabelRow}>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
+      <SegmentedYesNo value={value} onValueChange={onValueChange} />
+    </View>
+  );
+}
+
 function SectionHeading({
   title,
   colors,
@@ -425,7 +436,6 @@ const styles = StyleSheet.create({
   foodHint: {
     fontSize: 13,
     lineHeight: 18,
-    marginTop: -4,
   },
   input: {
     height: AppStyles.minTapTarget,
@@ -433,12 +443,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     fontSize: 17,
   },
-  optionList: {
-    gap: 8,
-  },
   message: {
     fontSize: 14,
     fontStyle: 'italic',
+  },
+  yesNoLabelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  yesNoLabelBlock: {
+    flex: 1,
+    gap: 2,
+    paddingRight: 8,
   },
   primaryButton: {
     minHeight: AppStyles.minTapTarget,
@@ -460,9 +478,10 @@ const styles = StyleSheet.create({
   },
   locationCard: {
     borderRadius: AppStyles.cardRadius,
-    padding: 16,
-    marginBottom: 10,
-    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 8,
+    gap: 8,
   },
   locationHeader: {
     flexDirection: 'row',
@@ -492,8 +511,8 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   roomList: {
-    gap: 6,
-    paddingTop: 4,
+    gap: 4,
+    paddingTop: 2,
   },
   roomRow: {
     flexDirection: 'row',
@@ -508,7 +527,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
   addRoomToggle: {
-    minHeight: 40,
+    minHeight: 36,
     justifyContent: 'center',
   },
   addRoomToggleText: {

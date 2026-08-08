@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ScreenHeader } from '@/components/ui/screen-header';
+import { SwipeToDeleteRow } from '@/components/ui/swipe-to-delete-row';
 import { AppStyles } from '@/constants/app-styles';
 import { BottomTabInset, Colors, getCardShadow, resolveColorScheme } from '@/constants/theme';
 import { useLists } from '@/context/lists-context';
@@ -66,7 +68,7 @@ export default function ListsScreen() {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View style={styles.content}>
-          <Text style={[styles.title, { color: colors.text }]}>Lists</Text>
+          <ScreenHeader title="My Lists" showBack={false} />
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
             Things you need to buy — separate from what you already own.
           </Text>
@@ -110,13 +112,14 @@ export default function ListsScreen() {
                 </Text>
               }
               renderItem={({ item: list }) => (
-                <View
-                  style={[
-                    styles.listCard,
-                    { backgroundColor: colors.backgroundElement },
-                    cardShadow,
-                  ]}>
-                  <Pressable style={styles.listCardMain} onPress={() => openList(list)}>
+                <SwipeToDeleteRow onDelete={() => confirmDeleteList(list)}>
+                  <Pressable
+                    style={[
+                      styles.listCard,
+                      { backgroundColor: colors.backgroundElement },
+                      cardShadow,
+                    ]}
+                    onPress={() => openList(list)}>
                     <Text style={[styles.listName, { color: colors.text }]}>{list.name}</Text>
                     <Text style={[styles.listMeta, { color: colors.textSecondary }]}>
                       {getListProgress(listItems, list.id)}
@@ -125,13 +128,7 @@ export default function ListsScreen() {
                         : ''}
                     </Text>
                   </Pressable>
-                  <Pressable
-                    style={styles.deleteAction}
-                    onPress={() => confirmDeleteList(list)}
-                    hitSlop={8}>
-                    <Text style={styles.deleteActionText}>Delete</Text>
-                  </Pressable>
-                </View>
+                </SwipeToDeleteRow>
               )}
             />
           )}
@@ -152,12 +149,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: AppStyles.screenPadding,
     paddingTop: 8,
-  },
-  title: {
-    fontSize: 34,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-    marginBottom: 4,
   },
   subtitle: {
     fontSize: 15,
@@ -194,13 +185,6 @@ const styles = StyleSheet.create({
     gap: AppStyles.itemGap,
   },
   listCard: {
-    borderRadius: AppStyles.cardRadius,
-    flexDirection: 'row',
-    alignItems: 'center',
-    overflow: 'hidden',
-  },
-  listCardMain: {
-    flex: 1,
     paddingVertical: 14,
     paddingHorizontal: 16,
     gap: 2,
@@ -211,16 +195,6 @@ const styles = StyleSheet.create({
   },
   listMeta: {
     fontSize: 14,
-  },
-  deleteAction: {
-    minHeight: AppStyles.minTapTarget,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
-  },
-  deleteActionText: {
-    color: AppStyles.danger,
-    fontSize: 15,
-    fontWeight: '500',
   },
   emptyText: {
     textAlign: 'center',

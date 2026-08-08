@@ -16,6 +16,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { BrandLockup } from '@/components/ui/brand-lockup';
+import { SwipeToDeleteRow } from '@/components/ui/swipe-to-delete-row';
 import { AppStyles } from '@/constants/app-styles';
 import { BottomTabInset, Colors, getCardShadow, resolveColorScheme } from '@/constants/theme';
 import { useInventory } from '@/context/inventory-context';
@@ -113,7 +115,14 @@ export default function HomeScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={styles.content}>
         <View style={styles.topBar}>
-          <Text style={[styles.appTitle, { color: colors.text }]}>Baytkeep</Text>
+          <BrandLockup />
+          <Pressable
+            style={[styles.headerIconButton, { backgroundColor: colors.backgroundElement }]}
+            onPress={() => router.push('/settings')}
+            accessibilityLabel="Settings"
+            hitSlop={4}>
+            <MaterialCommunityIcons name="cog-outline" size={22} color={AppStyles.primary} />
+          </Pressable>
         </View>
 
         {!isNeededView ? (
@@ -161,17 +170,6 @@ export default function HomeScreen() {
               onPress={() => setStatusFilter('needed')}
             />
           </View>
-          <Pressable
-            style={[styles.manageLocationsButton, { backgroundColor: colors.backgroundElement }]}
-            onPress={() => router.push('/manage-locations')}
-            accessibilityLabel="Manage locations"
-            hitSlop={4}>
-            <MaterialCommunityIcons
-              name="home-plus-outline"
-              size={22}
-              color={AppStyles.primary}
-            />
-          </Pressable>
         </View>
 
         {isNeededView ? (
@@ -203,6 +201,7 @@ export default function HomeScreen() {
               style={styles.list}
               contentContainerStyle={[
                 styles.listContent,
+                styles.neededListContent,
                 { paddingBottom: TAB_BAR_CLEARANCE + 16 },
               ]}
               keyboardShouldPersistTaps="handled"
@@ -214,22 +213,18 @@ export default function HomeScreen() {
                 </Text>
               }
               renderItem={({ item }) => (
-                <View
-                  style={[
-                    styles.neededCard,
-                    { backgroundColor: colors.backgroundElement },
-                    cardShadow,
-                  ]}>
-                  <Text style={[styles.neededName, { color: colors.text }]} numberOfLines={2}>
-                    {item.name}
-                  </Text>
-                  <Pressable
-                    style={styles.neededDelete}
-                    onPress={() => confirmDeleteNeeded(item)}
-                    hitSlop={8}>
-                    <Text style={styles.neededDeleteText}>Delete</Text>
-                  </Pressable>
-                </View>
+                <SwipeToDeleteRow onDelete={() => confirmDeleteNeeded(item)}>
+                  <View
+                    style={[
+                      styles.neededCard,
+                      { backgroundColor: colors.backgroundElement },
+                      cardShadow,
+                    ]}>
+                    <Text style={[styles.neededName, { color: colors.text }]} numberOfLines={2}>
+                      {item.name}
+                    </Text>
+                  </View>
+                </SwipeToDeleteRow>
               )}
             />
           </>
@@ -239,7 +234,7 @@ export default function HomeScreen() {
             keyExtractor={(item) => item.id}
             stickySectionHeadersEnabled={false}
             style={styles.list}
-            contentContainerStyle={[styles.listContent, { paddingBottom: 100 + TAB_BAR_CLEARANCE }]}
+            contentContainerStyle={[styles.listContent, { paddingBottom: TAB_BAR_CLEARANCE + 16 }]}
             keyboardShouldPersistTaps="handled"
             renderSectionHeader={({ section }) => (
               <Text style={[styles.sectionHeader, { color: colors.textSecondary }]}>
@@ -301,15 +296,6 @@ export default function HomeScreen() {
           />
         )}
       </View>
-
-      {!isNeededView ? (
-        <Pressable
-          style={[styles.fab, { bottom: AppStyles.screenPadding + TAB_BAR_CLEARANCE }]}
-          onPress={() => router.push('/add-item')}
-          accessibilityLabel="Add item">
-          <Text style={styles.fabText}>+</Text>
-        </Pressable>
-      ) : null}
     </SafeAreaView>
   );
 }
@@ -365,12 +351,17 @@ const styles = StyleSheet.create({
   topBar: {
     marginBottom: 16,
     minHeight: 44,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
-  appTitle: {
-    fontSize: 32,
-    fontWeight: '700',
-    letterSpacing: -0.5,
+  headerIconButton: {
+    width: AppStyles.minTapTarget,
+    height: AppStyles.minTapTarget,
+    borderRadius: AppStyles.minTapTarget / 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   searchInput: {
     height: AppStyles.minTapTarget,
@@ -385,10 +376,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   filterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
     marginBottom: 16,
   },
   filterChips: {
@@ -396,14 +383,6 @@ const styles = StyleSheet.create({
     gap: 8,
     flexShrink: 1,
     flexWrap: 'wrap',
-  },
-  manageLocationsButton: {
-    width: AppStyles.minTapTarget,
-    height: AppStyles.minTapTarget,
-    borderRadius: AppStyles.minTapTarget / 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexShrink: 0,
   },
   filterChip: {
     minHeight: 36,
@@ -485,28 +464,15 @@ const styles = StyleSheet.create({
   foodSubtitle: {
     fontSize: 13,
   },
+  neededListContent: {
+    gap: AppStyles.itemGap,
+  },
   neededCard: {
-    borderRadius: AppStyles.cardRadius,
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 14,
     paddingHorizontal: 16,
-    marginBottom: AppStyles.itemGap,
-    gap: 12,
   },
   neededName: {
-    flex: 1,
     fontSize: 17,
-  },
-  neededDelete: {
-    minHeight: 36,
-    justifyContent: 'center',
-    paddingHorizontal: 4,
-  },
-  neededDeleteText: {
-    color: AppStyles.danger,
-    fontSize: 15,
-    fontWeight: '500',
   },
   emptyMessage: {
     textAlign: 'center',
@@ -514,26 +480,5 @@ const styles = StyleSheet.create({
     lineHeight: 24,
     marginTop: 48,
     paddingHorizontal: 8,
-  },
-  fab: {
-    position: 'absolute',
-    right: AppStyles.screenPadding,
-    width: AppStyles.fabSize,
-    height: AppStyles.fabSize,
-    borderRadius: AppStyles.fabSize / 2,
-    backgroundColor: AppStyles.primary,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#2C2419',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.18,
-    shadowRadius: 10,
-    elevation: 5,
-  },
-  fabText: {
-    color: AppStyles.primaryText,
-    fontSize: 32,
-    fontWeight: '400',
-    marginTop: -2,
   },
 });

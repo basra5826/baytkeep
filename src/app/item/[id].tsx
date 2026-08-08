@@ -24,6 +24,7 @@ import {
   type ItemDetailsValues,
 } from '@/components/item-details-fields';
 import { FoodDateFields, type FoodDateValues } from '@/components/food-date-fields';
+import { LocationDropdown } from '@/components/ui/location-dropdown';
 import { OptionButton } from '@/components/ui/option-button';
 import { ScreenHeader } from '@/components/ui/screen-header';
 import { AppStyles } from '@/constants/app-styles';
@@ -187,20 +188,16 @@ export default function ItemDetailScreen() {
           />
 
           <Text style={[styles.fieldLabel, { color: colors.text }]}>Location</Text>
-          <View style={styles.optionList}>
-            {sortedLocations.map((location) => (
-              <OptionButton
-                key={location.id}
-                label={location.isFood ? `${location.name} · Food` : location.name}
-                selected={locationId === location.id}
-                onPress={() => {
-                  setLocationId(location.id);
-                  setRoomId(null);
-                  if (!location.isFood) setFoodDates({});
-                }}
-              />
-            ))}
-          </View>
+          <LocationDropdown
+            locations={sortedLocations}
+            selectedLocationId={locationId}
+            onSelectLocation={(id) => {
+              const location = locations.find((entry) => entry.id === id);
+              setLocationId(id);
+              setRoomId(null);
+              if (location && !location.isFood) setFoodDates({});
+            }}
+          />
 
           {selectedLocation?.hasRooms ? (
             <>
