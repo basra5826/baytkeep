@@ -15,6 +15,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useColorScheme } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import { FontProvider } from '@/context/font-context';
 import { InventoryProvider } from '@/context/inventory-context';
 import { ListsProvider } from '@/context/lists-context';
 import { NeededProvider } from '@/context/needed-context';
@@ -28,36 +29,37 @@ export default function RootLayout() {
     Poppins_700Bold,
   });
 
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+  const fontsReady = fontsLoaded || Boolean(fontError);
+  const poppinsBold = fontsLoaded && !fontError ? 'Poppins_700Bold' : undefined;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <InventoryProvider>
-          <ListsProvider>
-            <NeededProvider>
-              <Stack screenOptions={{ headerShown: false }}>
-                <Stack.Screen name="index" />
-                <Stack.Screen
-                  name="welcome"
-                  options={{ gestureEnabled: false, animation: 'fade' }}
-                />
-                <Stack.Screen name="(tabs)" />
-                <Stack.Screen
-                  name="add-item"
-                  options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
-                />
-                <Stack.Screen name="manage-locations" />
-                <Stack.Screen name="settings" />
-                <Stack.Screen name="item/[id]" />
-                <Stack.Screen name="list/[id]" />
-              </Stack>
-            </NeededProvider>
-          </ListsProvider>
-        </InventoryProvider>
-      </ThemeProvider>
+      <FontProvider value={{ fontsReady, poppinsBold }}>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <InventoryProvider>
+            <ListsProvider>
+              <NeededProvider>
+                <Stack screenOptions={{ headerShown: false }}>
+                  <Stack.Screen name="index" />
+                  <Stack.Screen
+                    name="welcome"
+                    options={{ gestureEnabled: false, animation: 'fade' }}
+                  />
+                  <Stack.Screen name="(tabs)" />
+                  <Stack.Screen
+                    name="add-item"
+                    options={{ presentation: 'modal', animation: 'slide_from_bottom' }}
+                  />
+                  <Stack.Screen name="manage-locations" />
+                  <Stack.Screen name="settings" />
+                  <Stack.Screen name="item/[id]" />
+                  <Stack.Screen name="list/[id]" />
+                </Stack>
+              </NeededProvider>
+            </ListsProvider>
+          </InventoryProvider>
+        </ThemeProvider>
+      </FontProvider>
     </GestureHandlerRootView>
   );
 }

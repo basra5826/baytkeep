@@ -1,31 +1,41 @@
 /**
  * Entry redirect — first launch goes to welcome; returning users go to tabs.
- * Renders nothing while checking so the splash screen stays visible (no home flash).
+ * Keeps splash visible until fonts, navigation, and onboarding check are ready.
  */
 
-import { router } from 'expo-router';
+import { Redirect, useRootNavigationState } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 
+import { useAppFonts } from '@/context/font-context';
 import { hasCompletedOnboarding } from '@/lib/onboarding-storage';
 
-SplashScreen.preventAutoHideAsync().catch(() => {});
+type EntryRoute = '/(tabs)' | '/welcome';
 
 export default function Index() {
+  const { fontsReady } = useAppFonts();
+  const navigationState = useRootNavigationState();
+  const navigationReady = Boolean(navigationState?.key);
+  const [href, setHref] = useState<EntryRoute | null>(null);
+
   useEffect(() => {
-    void (async () => {
-      try {
-        const onboarded = await hasCompletedOnboarding();
-        if (onboarded) {
-          router.replace('/(tabs)');
-        } else {
-          router.replace('/welcome');
-        }
-      } finally {
-        await SplashScreen.hideAsync();
-      }
-    })();
+    void hasCompletedOnboarding().then((onboarded) => {
+      setHref(onboarded ? '/(tabs)' : '/welcome');
+    });
   }, []);
 
-  return null;
+  const appReady = fontsReady && navigationReady && href !== null;
+
+  useEffect(() => {
+    if (appReady) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [appReady]);
+
+  if (!appReady || href === null) {
+    return <View style={{ flex: 1 }} />;
+  }
+
+  return <Redirect href={href} />;
 }

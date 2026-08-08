@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AppStyles } from '@/constants/app-styles';
 import { Colors } from '@/constants/theme';
+import { useAppFonts } from '@/context/font-context';
 import { setOnboardingComplete } from '@/lib/onboarding-storage';
 
 const welcomeBackground = require('@/assets/images/welcome-bg.jpg');
@@ -24,6 +25,8 @@ const WELCOME_HORIZONTAL_PADDING = 28;
 export default function WelcomeScreen() {
   const insets = useSafeAreaInsets();
   const lightColors = Colors.light;
+  const { poppinsBold } = useAppFonts();
+  const boldTitle = poppinsBold ? { fontFamily: poppinsBold } : { fontWeight: '700' as const };
 
   const handleGetStarted = () => {
     void (async () => {
@@ -50,14 +53,14 @@ export default function WelcomeScreen() {
           },
         ]}>
         <View style={styles.wordmarkSection}>
-          <Text style={styles.wordmark} accessibilityRole="header">
+          <Text style={[styles.wordmark, boldTitle]} accessibilityRole="header">
             Baytkeep
           </Text>
         </View>
 
         <View style={styles.headlineSection}>
-          <Text style={styles.headlineLine1}>List what you own.</Text>
-          <Text style={styles.headlineLine2}>Find it in seconds.</Text>
+          <Text style={[styles.headlineLine1, boldTitle]}>List what you own.</Text>
+          <Text style={[styles.headlineLine2, boldTitle]}>Find it in seconds.</Text>
         </View>
 
         <View style={styles.footer}>
@@ -99,7 +102,6 @@ const styles = StyleSheet.create({
   },
   wordmark: {
     color: '#FFFFFF',
-    fontFamily: 'Poppins_700Bold',
     fontSize: 46,
     letterSpacing: 0.5,
     textAlign: 'center',
@@ -116,7 +118,6 @@ const styles = StyleSheet.create({
   },
   headlineLine1: {
     color: '#FFFFFF',
-    fontFamily: 'Poppins_700Bold',
     fontSize: 36,
     letterSpacing: -0.3,
     lineHeight: 40,
@@ -125,7 +126,6 @@ const styles = StyleSheet.create({
   },
   headlineLine2: {
     color: '#FFFFFF',
-    fontFamily: 'Poppins_700Bold',
     fontSize: 36,
     letterSpacing: -0.3,
     lineHeight: 40,
