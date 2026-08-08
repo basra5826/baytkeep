@@ -112,11 +112,17 @@ export function InventoryProvider({ children }: { children: ReactNode }) {
 
       setIsLoaded(true);
 
-      await initializeNotifications();
-      await resyncAllFoodNotifications(
-        inventoryRef.current.items,
-        inventoryRef.current.locations,
-      );
+      try {
+        await initializeNotifications();
+        await resyncAllFoodNotifications(
+          inventoryRef.current.items,
+          inventoryRef.current.locations,
+        );
+      } catch {
+        // Notifications are optional — never block or crash app startup.
+      }
+    }).catch(() => {
+      if (!cancelled) setIsLoaded(true);
     });
 
     return () => {

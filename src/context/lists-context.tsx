@@ -64,8 +64,14 @@ export function ListsProvider({ children }: { children: ReactNode }) {
       setListItems(data.listItems);
       setIsLoaded(true);
 
-      await initializeNotifications();
-      await resyncAllListReminders(data.lists);
+      try {
+        await initializeNotifications();
+        await resyncAllListReminders(data.lists);
+      } catch {
+        // Notifications are optional — never block or crash app startup.
+      }
+    }).catch(() => {
+      if (!cancelled) setIsLoaded(true);
     });
 
     return () => {

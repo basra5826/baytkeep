@@ -42,28 +42,32 @@ export function computeNotifyAt(addedAtMs: number, targetDateIso: string): Date 
 export async function initializeNotifications(): Promise<boolean> {
   if (!isNotificationsSupported()) return false;
 
-  Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-      shouldShowAlert: true,
-      shouldPlaySound: true,
-      shouldSetBadge: false,
-      shouldShowBanner: true,
-      shouldShowList: true,
-    }),
-  });
-
-  if (Platform.OS === 'android') {
-    await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
-      name: 'Food reminders',
-      importance: Notifications.AndroidImportance.DEFAULT,
+  try {
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
     });
+
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync(ANDROID_CHANNEL_ID, {
+        name: 'Food reminders',
+        importance: Notifications.AndroidImportance.DEFAULT,
+      });
+    }
+
+    const existing = await Notifications.getPermissionsAsync();
+    if (existing.status === 'granted') return true;
+
+    const requested = await Notifications.requestPermissionsAsync();
+    return requested.status === 'granted';
+  } catch {
+    return false;
   }
-
-  const existing = await Notifications.getPermissionsAsync();
-  if (existing.status === 'granted') return true;
-
-  const requested = await Notifications.requestPermissionsAsync();
-  return requested.status === 'granted';
 }
 
 export async function cancelFoodNotificationsForItem(itemId: string): Promise<void> {

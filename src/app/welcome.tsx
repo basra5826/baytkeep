@@ -2,7 +2,6 @@
  * First-launch welcome screen — shown once before the main app.
  */
 
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -39,11 +38,12 @@ export default function WelcomeScreen() {
     <View style={styles.container}>
       <StatusBar style="light" />
       <Image source={welcomeBackground} style={styles.backgroundImage} resizeMode="cover" />
-      <LinearGradient
-        colors={['transparent', 'rgba(28, 24, 20, 0.35)', 'rgba(28, 24, 20, 0.92)']}
-        locations={[0, 0.42, 1]}
-        style={styles.gradient}
-      />
+      {/* View-based scrim — no native gradient module (avoids first-launch production crashes). */}
+      <View style={styles.scrim} pointerEvents="none">
+        <View style={styles.scrimTop} />
+        <View style={styles.scrimMid} />
+        <View style={styles.scrimBottom} />
+      </View>
       <View
         style={[
           styles.content,
@@ -87,8 +87,20 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  gradient: {
+  scrim: {
     ...StyleSheet.absoluteFill,
+    flexDirection: 'column',
+  },
+  scrimTop: {
+    flex: 42,
+  },
+  scrimMid: {
+    flex: 18,
+    backgroundColor: 'rgba(28, 24, 20, 0.35)',
+  },
+  scrimBottom: {
+    flex: 40,
+    backgroundColor: 'rgba(28, 24, 20, 0.92)',
   },
   content: {
     flex: 1,
