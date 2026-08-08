@@ -1,56 +1,73 @@
-# Welcome to your Expo app 👋
+# Baytkeep
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**A private home inventory app for iOS.** Remember everything you own — where it is, whether it works, and when food expires — so you never buy a duplicate, forget what's broken, or waste groceries.
 
-## Get started
+Built with React Native, Expo, and TypeScript. All data stays on the device: no account, no cloud, no tracking.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+- **Catalog belongings by location** — house, shed, fridge, storage, anywhere, with optional rooms
+- **Instant search** across everything you own
+- **Status tracking** — mark items working or broken (broken items are flagged in red)
+- **Photos** — snap pictures of items and warranty papers
+- **Food & expiry** — track expiry and "runs out" dates for fridge/pantry items
+- **Smart reminders** — local notifications before food expires, timed proportionally to shelf life
+- **Shopping lists** — checklists for what you need to buy, with optional reminder dates
+- **Needed / wishlist** — track things you want but don't own yet
+- **Private by design** — everything is stored locally with AsyncStorage; nothing leaves your phone
 
-   ```bash
-   npx expo start
-   ```
+## Tech Stack
 
-In the output, you'll find options to open the app in a
+| Area | Technology |
+|------|-----------|
+| Framework | React Native |
+| Toolchain | Expo (EAS Build) |
+| Routing | expo-router (file-based) |
+| Language | TypeScript |
+| Storage | AsyncStorage (device-local) |
+| Fonts | Poppins (@expo-google-fonts) |
+| Notifications | expo-notifications |
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Architecture
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **No backend** — fully offline, no servers, no API, no accounts
+- **State** — React Context providers per domain (inventory, lists, needed)
+- **Persistence** — serialized AsyncStorage with a save queue to prevent race conditions
+- **Custom notification timing** — reminders scale to how long an item has:
+  `notifyAt = target − (target − dateAdded) × 0.15`
 
-## Get a fresh project
+## Project Structure
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+```
+src/
+├── app/                  # Screens (expo-router)
+│   ├── (tabs)/           # Tab screens: inventory, lists
+│   ├── item/[id].tsx     # Item detail
+│   ├── add-item.tsx
+│   ├── manage-locations.tsx
+│   ├── settings.tsx
+│   └── welcome.tsx       # First-launch onboarding
+├── components/           # Reusable UI (segmented controls, dropdown, etc.)
+├── context/              # State providers
+├── lib/                  # Storage, notifications, utils
+└── types/                # TypeScript definitions
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Running Locally
 
-### Other setup steps
+```bash
+npm install
+npx expo start
+```
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Requires an [Expo dev build](https://docs.expo.dev/develop/development-builds/introduction/) (uses native modules like gesture-handler and linear-gradient).
 
-## Learn more
+## Status
 
-To learn more about developing your project with Expo, look at the following resources:
+Home-inventory app built with an AI-assisted workflow. Available on the App Store (iOS) and in closed testing on Google Play.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Made by **AAYHtech** · Developed by **Ahmed Aldarwish**
